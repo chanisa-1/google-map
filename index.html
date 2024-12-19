@@ -1,0 +1,177 @@
+<html>
+<head>
+  <title>Custom Markers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    
+    * {
+      font-family: "Prompt", serif;
+    }
+
+    #map {
+      height: 100%;
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #iw_container .iw_title {
+      font-size: 30px;
+      font-weight: bold;
+      padding: 0 0 0px;
+      margin: 0;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .material-symbols-outlined {
+      font-size: 20px;
+      vertical-align: middle;
+      margin-right: 8px;
+      color: #614B3A;
+    }
+
+    .address, .time, .phone {
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      color: #A28275;
+    }
+
+    .info_text_container {
+      flex: 1;
+      line-height: 1.8;
+    }
+
+    .iw_title {
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #553E2E;
+      margin-bottom: 10px;
+    }
+
+    .iw_content {
+      padding: 18px;
+      max-width: 300px;
+      background-color: #fff;
+      display: flex;
+      gap: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+    var map;
+    var infoWindow;
+    var currentMarker = null;
+
+    function initMap() {
+      // กำหนดจุดกึ่งกลางของแผนที่
+      var centerPoint = new google.maps.LatLng(13.71515, 100.34593);
+
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 11,
+        center: centerPoint,
+        mapTypeId: "roadmap"
+      });
+
+      infoWindow = new google.maps.InfoWindow();
+
+      google.maps.event.addListener(infoWindow, 'closeclick', function() {
+        map.setZoom(12);
+        map.setCenter(centerPoint);
+        currentMarker = null;
+      });
+
+      google.maps.event.addListener(map, 'click', function() {
+        infoWindow.close();
+        if (currentMarker) {
+          map.setZoom(12);
+          map.setCenter(centerPoint);
+          currentMarker = null;
+        }
+      });
+
+      var features = [
+        {
+          position: new google.maps.LatLng(13.75863, 100.32998),
+          name: "พุทธมณฑลสาย 4",
+          address1: "The Fourth (ชั้น2 ถ.พุทธมณฑลสาย4)",
+          address2: "10:30 - 20:00 น.",
+          postalCode: "094-694-4226"
+        },
+        {
+          position: new google.maps.LatLng(13.74452, 100.40019),
+          name: "สาขาสาย 2",
+          address1: "แขวงบางไผ่ เขตบางแค กรุงเทพมหานคร",
+          address2: "10:00 - 20:00 น.",
+          postalCode: "062-640-4694"
+        },
+        {
+          position: new google.maps.LatLng(13.67168, 100.30782),
+          name: "สวนหลวง",
+          address1: "สวนหลวง อำเภอกระทุ่มแบน สมุทรสาคร",
+          address2: "10:00 - 20:00 น.",
+          postalCode: "084-636-4296"
+        }
+      ];
+
+      var bounds = new google.maps.LatLngBounds();
+
+      features.forEach(function(feature, index) {
+        setTimeout(function() {
+          var marker = new google.maps.Marker({
+            position: feature.position,
+            map: map,
+            title: feature.name,
+            animation: google.maps.Animation.DROP
+          });
+
+          bounds.extend(marker.getPosition());
+          feature.marker = marker;
+
+          marker.addListener('click', function() {
+            if (currentMarker && currentMarker !== marker) {
+              infoWindow.close();
+            }
+
+            map.setZoom(14);
+            map.setCenter(marker.getPosition());
+            currentMarker = marker;
+
+            var iwContent = '<div id="iw_container">' +
+              '<div class="iw_content">' +
+              '<div class="info_text_container">' + 
+              '<div class="iw_title">' + feature.name + '</div>' +
+              '<div class="address">' + feature.address1 + '</div>' +
+              '<div class="time"><span class="material-symbols-outlined">schedule</span>' + feature.address2 + '</div>' +
+              '<div class="phone"><span class="material-symbols-outlined">call</span>' + feature.postalCode + '</div>' +
+              '</div>' +
+              '</div></div>';
+
+            infoWindow.setContent(iwContent);
+            infoWindow.open(map, marker);
+          });
+        }, index * 200);
+      });
+
+      // หลังจากสร้างหมุดเสร็จ ปรับแผนที่ให้แสดงทุกหมุด
+      setTimeout(function() {
+        map.fitBounds(bounds);
+      }, features.length * 200);
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGVKwYyakjeU8FQour1ZEwN8eEMWIj88k&callback=initMap">
+  </script>
+</body>
+</html>
